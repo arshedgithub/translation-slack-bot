@@ -24,6 +24,8 @@ class SlackTranslateBot:
         self.supported_languages = {
             'en': 'English',
             'ja': 'Japanese',
+            'si': 'Sinhala',
+            'ta': 'Tamil',
             'ko': 'Korean',
             'zh': 'Chinese (Simplified)',
             'es': 'Spanish',
@@ -50,6 +52,22 @@ class SlackTranslateBot:
                 )
                 return
             
+            # Parse language code if provided
+            parts = text.split(maxsplit=1)
+            if len(parts) == 2 and parts[0].lower() in self.supported_languages:
+                target_lang = parts[0].lower()
+                text = parts[1]
+            
+            # Check if target language is supported
+            if target_lang not in self.supported_languages:
+                error_msg = f"Unsupported language code: {target_lang}. Use `/translate help` to see supported languages."
+                self.client.chat_postEphemeral(
+                    channel=channel_id,
+                    user=user_id,
+                    text=error_msg
+                )
+                return
+            
             self.translator.target = target_lang
             translated = self.translator.translate(text)
             print(translated)
@@ -57,7 +75,7 @@ class SlackTranslateBot:
             
             self.client.chat_postMessage(
                 channel=channel_id,
-                text=f"{text}\n\n*Translation:*\n`{translated}`"
+                text=f"{text}\n\n*Translation:*\n```{translated}```"
             )
             
         except SlackApiError as e:
@@ -83,6 +101,7 @@ class SlackTranslateBot:
         help_text += "• `/translate ja Hello, how are you?`\n"
         
         return help_text
+
 
 @app.route('/slack/translate', methods=['POST'])
 def translate_command():

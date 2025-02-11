@@ -38,8 +38,18 @@ class SlackTranslateBot:
             'th': 'Thai'
         }
     
-    def handle_slash_command(self, channel_id, text, target_lang="en"):
+    def handle_slash_command(self, channel_id, user_id, text, target_lang="en"):
         try:
+            if not text or text.lower().strip() == 'help':
+                help_message = self.get_help_message()
+                self.client.chat_postEphemeral(
+                    channel=channel_id,
+                    user=user_id,
+                    text=help_message,
+                    mrkdwn=True
+                )
+                return
+            
             self.translator.target = target_lang
             translated = self.translator.translate(text)
             print(translated)
@@ -47,11 +57,13 @@ class SlackTranslateBot:
             
             self.client.chat_postMessage(
                 channel=channel_id,
-                text=f"Original: {text}\nTranslated: {translated}"
+                text=f"{text}\n\n*Translation:*\n`{translated}`"
             )
+            
         except SlackApiError as e:
             print(f"Authentication Error: {e.response['error']}")
             raise ValueError(f"Slack authentication failed: {e.response['error']}")
+        
         except Exception as e:
             print(f"Translation error: {e}")
 
@@ -77,7 +89,7 @@ def translate_command():
     data = request.form
     try:
         bot = SlackTranslateBot()
-        bot.handle_slash_command(data['channel_id'], text=data.get('text', ''))
+        bot.handle_slash_command(data['channel_id'], user_id=data['user_id'], text=data.get('text', ''))
         return Response(), 200
     except Exception as e:
         print(f"Error: {e}")

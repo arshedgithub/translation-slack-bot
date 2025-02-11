@@ -21,9 +21,24 @@ class SlackTranslateBot:
         except Exception as e:
             print(f"Translation error: {e}")
             return None
+    
+    def post_message(self, channel, text):
+        try:
+            response = self.client.chat_postMessage(
+                channel=channel,
+                text=text
+            )
+            return response
+        except SlackApiError as e:
+            print(f"Error posting message: {e.response['error']}")
+            return None
 
 if __name__ == "__main__":
     bot = SlackTranslateBot()
-    translated = bot.translate_text("こんにちは、お元気ですか、私は元気です")
+    translated = bot.translate_text("おはよう")
+    print(translated)
     if translated:
-        print("#test-bot", translated)
+        bot.post_message("test-bot", translated)
+        
+        
+    

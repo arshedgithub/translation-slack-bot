@@ -20,6 +20,23 @@ class SlackTranslateBot:
         self.token = os.environ.get('SLACK_TOKEN')
         if not self.token:
             raise ValueError("SLACK_TOKEN environment variable is not set")
+        
+        self.supported_languages = {
+            'en': 'English',
+            'ja': 'Japanese',
+            'ko': 'Korean',
+            'zh': 'Chinese (Simplified)',
+            'es': 'Spanish',
+            'fr': 'French',
+            'de': 'German',
+            'it': 'Italian',
+            'ru': 'Russian',
+            'ar': 'Arabic',
+            'hi': 'Hindi',
+            'pt': 'Portuguese',
+            'vi': 'Vietnamese',
+            'th': 'Thai'
+        }
     
     def handle_slash_command(self, channel_id, text, target_lang="en"):
         try:
@@ -38,6 +55,22 @@ class SlackTranslateBot:
         except Exception as e:
             print(f"Translation error: {e}")
 
+    def get_help_message(self):
+        help_text = "*Translation Bot Help*\n\n"
+        help_text += "*Usage:*\n"
+        help_text += "• `/translate <text>` - Translate text to English (default)\n"
+        help_text += "• `/translate <language_code> <text>` - Translate text to specific language\n"
+        help_text += "• `/translate help` - Show this help message\n\n"
+        
+        help_text += "*Supported Languages:*\n"
+        for code, name in self.supported_languages.items():
+            help_text += f"• `{code}` - {name}\n"
+        
+        help_text += "\n*Examples:*\n"
+        help_text += "• `/translate Hello, how are you?`\n"
+        help_text += "• `/translate ja Hello, how are you?`\n"
+        
+        return help_text
 
 @app.route('/slack/translate', methods=['POST'])
 def translate_command():

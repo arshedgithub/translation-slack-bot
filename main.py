@@ -4,13 +4,17 @@ from pathlib import Path
 from dotenv import load_dotenv
 from deep_translator import GoogleTranslator
 from slack_sdk.errors import SlackApiError
-from flask import Flask
+from flask import Flask, Response
 
 # Load environment variables
 env_path = Path('.') / '.env'
 load_dotenv(env_path)
 
-app= Flask(__name__)
+app = Flask(__name__)
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    return ({"status": "healthy"})
 
 class SlackTranslateBot:
     def __init__(self):

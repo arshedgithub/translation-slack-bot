@@ -4,10 +4,13 @@ from pathlib import Path
 from dotenv import load_dotenv
 from deep_translator import GoogleTranslator
 from slack_sdk.errors import SlackApiError
+from flask import Flask
 
 # Load environment variables
 env_path = Path('.') / '.env'
 load_dotenv(env_path)
+
+app= Flask(__name__)
 
 class SlackTranslateBot:
     def __init__(self):
@@ -28,6 +31,8 @@ class SlackTranslateBot:
             print(f"Translation error: {e}")
 
 if __name__ == "__main__":
+    app.run(debug=True) # automatically re run
+    
     bot = SlackTranslateBot()
     text_to_translate="おはようございます, 今日の進捗はどうですか"
     bot.handle_slash_command("test-bot", text_to_translate)

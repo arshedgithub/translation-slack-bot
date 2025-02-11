@@ -14,31 +14,23 @@ class SlackTranslateBot:
         self.client = WebClient(token=os.environ['SLACK_TOKEN'])
         self.translator = GoogleTranslator(source='auto', target='en')
     
-    def translate_text(self, text, target_lang='en'):
+    def handle_slash_command(self, channel_id, text, target_lang="en"):
         try:
             self.translator.target = target_lang
-            return self.translator.translate(text)
+            translated = self.translator.translate(text)
+            self.client.chat_postMessage(
+                channel=channel_id,
+                text=f"Original: {text}\nTranslated: {translated}"
+            )
+        except SlackApiError as e:
+            print(f"Error: {e.response['error']}")
         except Exception as e:
             print(f"Translation error: {e}")
-            return None
-    
-    def post_message(self, channel, text):
-        try:
-            response = self.client.chat_postMessage(
-                channel=channel,
-                text=text
-            )
-            return response
-        except SlackApiError as e:
-            print(f"Error posting message: {e.response['error']}")
-            return None
 
 if __name__ == "__main__":
     bot = SlackTranslateBot()
-    translated = bot.translate_text("おはよう")
-    print(translated)
-    if translated:
-        bot.post_message("test-bot", translated)
+    text_to_translate="おはようございます, 今日の進捗はどうですか"
+    bot.handle_slash_command("test-bot", text_to_translate)
         
         
     
